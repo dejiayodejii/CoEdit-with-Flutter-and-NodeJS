@@ -1,42 +1,56 @@
+import 'dart:io';
+
+import 'package:collaborating_editing_app/controller/auth_controller.dart';
+import 'package:collaborating_editing_app/screens/home_screen.dart';
+import 'package:collaborating_editing_app/screens/login_screen.dart';
+import 'package:collaborating_editing_app/utils/local_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 void main() {
-  runApp(const MyApp());
+  HttpOverrides.global = MyHttpOverrides();
+  runApp(const ProviderScope(child: MyApp()));
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends ConsumerStatefulWidget {
   const MyApp({super.key});
 
-  // This widget is the root of your application.
+  @override
+  ConsumerState<ConsumerStatefulWidget> createState() => _MyAppState();
+}
+
+class _MyAppState extends ConsumerState<MyApp> {
+  @override
+  void initState() {
+    init();
+    super.initState();
+  }
+
+  init() async {
+    final result = await LocalDb.inst.getUserModel();
+    ref.read(userProvider.notifier).update((state) => result);
+  }
+
   @override
   Widget build(BuildContext context) {
+    final user = ref.watch(userProvider);
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       title: 'Flutter Demo',
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+      home: user == null ? const LoginScreen() : const HomeScreen(),
     );
   }
 }
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
-
-  final String title;
-
+class MyHttpOverrides extends HttpOverrides {
   @override
-  State<MyHomePage> createState() => _MyHomePageState();
-}
-
-class _MyHomePageState extends State<MyHomePage> {
-  @override
-  Widget build(BuildContext context) {
-    return const Scaffold(
-      body: Column(
-        children: [],
-      ),
-    );
+  HttpClient createHttpClient(SecurityContext? context) {
+    return super.createHttpClient(context)
+      ..badCertificateCallback =
+          (X509Certificate cert, String host, int port) => true;
   }
 }
