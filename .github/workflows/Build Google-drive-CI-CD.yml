@@ -27,7 +27,7 @@ jobs:
         with:
           arguments: assembleDebug
       - name: Upload apk to Google Drive
-        uses: logickoder/google-drive-upload@test
+        uses: logickoder/google-drive-upload@1.0.0
         with:
           credentials: ${{ secrets.GCP_CREDENTIAL }}
           filename: "app/build/outputs/apk/debug/app-debug.apk"
