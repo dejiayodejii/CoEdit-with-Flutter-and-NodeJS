@@ -41,7 +41,7 @@ class _MyAppState extends ConsumerState<MyApp> {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: user == null ? const LoginScreen() : const HomeScreen(),
+      home: Text('Hello'),
     );
   }
 }
